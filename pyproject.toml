@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "abstract-algebra"
+version = "0.1.0"
+description = "A python library for Abstract and Linear Algebra"
+authors = ["Michael Bending <michael.a.bending@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+numpy = "^1.26.3"
+
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.0.0"
+black = "^24.1.1"
+mypy = "^1.8.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
