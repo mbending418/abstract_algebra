@@ -6,6 +6,7 @@ from abstract_algebra.abstract_structures.field import (
     FieldProtocol,
     multiplicative_inverse,
 )
+from abstract_algebra.compound_structures.vector import identify_first_nonzero_entry
 from abstract_algebra.compound_structures.matrix import Matrix, get_identity_matrix
 
 F = TypeVar("F", bound=FieldProtocol)
@@ -69,29 +70,6 @@ def reduced_row_echelon_form_track_inverse_and_determinants(
     return rref_matrix, row_operations, determinant
 
 
-def _identify_first_nonzero(
-    matrix: Matrix[F], start_row_index: int, column_index: int, reverse: bool = False
-) -> int:
-    """
-    identify the first nonzero element of a column starting at "start_row_index"
-
-    :param matrix: the matrix to look for nonzero entries for
-    :param start_row_index: the index of the first row of the column to check
-    :param column_index: the column to look for nonzero entries in
-    :param reverse: set to True to look from top to bottom, else look bottom to top
-    :return: the index of the first nonzero element (returns -1 if there are no zeros)
-    """
-    zero = additive_identity(matrix[0][0])
-    if not reverse:
-        range_bounds = [start_row_index, matrix.shape[0]]
-    else:
-        range_bounds = [start_row_index, -1, -1]
-    for row_index in range(*range_bounds):
-        if matrix[row_index][column_index] != zero:
-            return row_index
-    return -1
-
-
 def _row_echelon_form_track_row_operations(
     matrix: Matrix[F],
 ) -> Tuple[Matrix[F], Matrix[F], bool]:
@@ -121,9 +99,9 @@ def _row_echelon_form_track_row_operations(
     swap_count = 0
     pivot_row: int = 0
     for pivot_column in range(0, matrix.shape[0] - 1):
-        swap_row = _identify_first_nonzero(
-            matrix, start_row_index=pivot_row, column_index=pivot_column
-        )
+        column = matrix.transpose()[pivot_column]
+        swap_row = identify_first_nonzero_entry(column, starting_index=pivot_row)
+
         if swap_row == -1:
             continue
 
@@ -191,9 +169,8 @@ def _diagonalize_row_echelon_form_track_row_operations(
     row_operation_dimension = matrix.shape[0]
     row_operations = get_identity_matrix(row_operation_dimension, one)
     for pivot_column in range(matrix.shape[1] - 1, -1, -1):
-        pivot_row = _identify_first_nonzero(
-            matrix, row_operation_dimension - 1, pivot_column, reverse=True
-        )
+        column = matrix.transpose()[pivot_column]
+        pivot_row = identify_first_nonzero_entry(column, starting_index=row_operation_dimension-1, reverse=True)
         if pivot_row == -1:
             continue
         pivot_value = matrix[pivot_row][pivot_column]
@@ -247,9 +224,9 @@ def _normalize_diagonal_matrix_track_row_operations(
     one = multiplicative_identity(matrix[0][0])
 
     pivot_indexes = [
-        _identify_first_nonzero(matrix.transpose(), start_row_index=0, column_index=i)
-        for i in range(matrix.shape[0])
+        identify_first_nonzero_entry(matrix[i]) for i in range(matrix.shape[0])
     ]
+
     scaling_matrix = Matrix(
         [
             [
