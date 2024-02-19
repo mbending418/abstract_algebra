@@ -170,7 +170,9 @@ def _diagonalize_row_echelon_form_track_row_operations(
     row_operations = get_identity_matrix(row_operation_dimension, one)
     for pivot_column in range(matrix.shape[1] - 1, -1, -1):
         column = matrix.transpose()[pivot_column]
-        pivot_row = identify_first_nonzero_entry(column, starting_index=row_operation_dimension-1, reverse=True)
+        pivot_row = identify_first_nonzero_entry(
+            column, starting_index=row_operation_dimension - 1, reverse=True
+        )
         if pivot_row == -1:
             continue
         pivot_value = matrix[pivot_row][pivot_column]

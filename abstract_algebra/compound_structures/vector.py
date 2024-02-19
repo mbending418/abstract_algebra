@@ -140,7 +140,9 @@ class Vector(Generic[F], Iterable):
         )
 
 
-def identify_first_nonzero_entry(vector: Vector[F], starting_index: int = 0, reverse: bool = False) -> int:
+def identify_first_nonzero_entry(
+    vector: Vector[F], starting_index: int = 0, reverse: bool = False
+) -> int:
     """
     identify the first nonzero entry starting at "starting_index"
 
