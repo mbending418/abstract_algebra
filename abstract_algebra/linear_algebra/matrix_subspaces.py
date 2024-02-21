@@ -9,14 +9,14 @@ from abstract_algebra.compound_structures.vector import (
     identify_first_nonzero_entry,
 )
 from abstract_algebra.compound_structures.matrix import Matrix
-from abstract_algebra.linear_algebra.gauss_jordan import reduced_row_echelon_form
+from abstract_algebra.linear_algebra.gauss_jordan import GaussJordan
 
 F = TypeVar("F", bound=FieldProtocol)
 
 
 def column_space(matrix: Matrix[F]) -> List[Vector[F]]:
     row_count = matrix.shape[0]
-    reduced_matrix = reduced_row_echelon_form(matrix)
+    reduced_matrix = GaussJordan(matrix).reduced_row_echelon_form
     basic_indexes = [
         index
         for i in range(row_count)
@@ -34,7 +34,7 @@ def null_space(matrix: Matrix[F]) -> List[Vector[F]]:
     one = multiplicative_identity(matrix[0][0])
     row_count = matrix.shape[0]
     column_count = matrix.shape[1]
-    reduced_matrix = reduced_row_echelon_form(matrix)
+    reduced_matrix = GaussJordan(matrix).reduced_row_echelon_form
     basic_indexes = [
         index
         for i in range(row_count)
