@@ -14,14 +14,14 @@ def test_matrix_length(parameter_matrix):
         parameter_matrix.rows
     ), f"First Dimension of Matrix doesn't match the number of Rows: {parameter_matrix}"
     for row in parameter_matrix.rows:
-        assert (
-            parameter_matrix.shape[1] == row.dimension
+        assert parameter_matrix.shape[1] == len(
+            row
         ), f"Second Dimension of Matrix doesn't match the length of a Row: {row}"
 
 
 @pytest.mark.parametrize(
     "first,second,expected",
-    [(Vector([1.0, 2.0]), Vector([2.0, 4.0]), Vector([3.0, 6.0]))],
+    [(Vector((1.0, 2.0)), Vector((2.0, 4.0)), Vector((3.0, 6.0)))],
 )
 def test_vector_addition(first: Vector, second: Vector, expected: Vector):
     result = first + second

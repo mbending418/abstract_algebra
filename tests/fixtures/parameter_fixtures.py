@@ -39,42 +39,42 @@ gaussian_integer_values: List[GaussianInteger] = [
     GaussianInteger(3, 4),
 ]
 vector_values: List[Vector] = [
-    Vector([1.0, 0.0, 0.0]),
-    Vector([1.0, 0.0, 0.0, 0.0]),
-    Vector([0.0, 1.0, 0.0]),
-    Vector([0.0, 0.0, 2.0, 0.0]),
-    Vector([1.0, 2.0, 3.0, 4.0]),
+    Vector((1.0, 0.0, 0.0)),
+    Vector((1.0, 0.0, 0.0, 0.0)),
+    Vector((0.0, 1.0, 0.0)),
+    Vector((0.0, 0.0, 2.0, 0.0)),
+    Vector((1.0, 2.0, 3.0, 4.0)),
     Vector(
-        [ComplexNumber(1.0, 1.0), ComplexNumber(1.0, 0.0), ComplexNumber(0.0, -1.0)]
+        (ComplexNumber(1.0, 1.0), ComplexNumber(1.0, 0.0), ComplexNumber(0.0, -1.0))
     ),
-    Vector([Fraction[int](1, 2), Fraction[int](1, -1), Fraction[int](0, 1)]),
+    Vector((Fraction[int](1, 2), Fraction[int](1, -1), Fraction[int](0, 1))),
     Vector(
-        [
+        (
             Fraction[GaussianInteger](GaussianInteger(1)),
             Fraction[GaussianInteger](GaussianInteger(1, 1), GaussianInteger(-3, 5)),
-        ]
+        )
     ),
 ]
 matrix_values: List[Matrix] = [
-    Matrix([[1.0, 0.0], [0.0, 1.0]]),
-    Matrix([[1.0, 2.0, 3.0], [4.0, 5.0, 6.0], [7.0, 8.0, 9.0]]),
-    Matrix([[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]]),
-    Matrix([[-1.5, -2.0, 4.0]]),
-    Matrix([[1.0, 2.0, 3.0]]),
-    Matrix([[-1.0, -2.5, 2.5], [10.4, -1.52, 1.234]]),
-    Matrix(
+    Matrix.new_matrix([[1.0, 0.0], [0.0, 1.0]]),
+    Matrix.new_matrix([[1.0, 2.0, 3.0], [4.0, 5.0, 6.0], [7.0, 8.0, 9.0]]),
+    Matrix.new_matrix([[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]]),
+    Matrix.new_matrix([[-1.5, -2.0, 4.0]]),
+    Matrix.new_matrix([[1.0, 2.0, 3.0]]),
+    Matrix.new_matrix([[-1.0, -2.5, 2.5], [10.4, -1.52, 1.234]]),
+    Matrix.new_matrix(
         [
             [ComplexNumber(1.0, 1.0), ComplexNumber(-1.0, 0.0)],
             [ComplexNumber(0.0, 1.0), ComplexNumber(0.0, 0.0)],
         ]
     ),
-    Matrix(
+    Matrix.new_matrix(
         [
             [Fraction[int](1, 2), Fraction[int](-3, 1)],
             [Fraction[int](5, 7), Fraction[int](5)],
         ]
     ),
-    Matrix(
+    Matrix.new_matrix(
         [
             [
                 Fraction[GaussianInteger](GaussianInteger(1)),

@@ -1,4 +1,4 @@
-from typing import TypeVar, Tuple, Generic
+from typing import TypeVar, Tuple, Generic, List
 from dataclasses import dataclass
 import functools
 from abstract_algebra.abstract_structures.monoid import additive_identity
@@ -8,15 +8,17 @@ from abstract_algebra.abstract_structures.field import (
     FieldProtocol,
     multiplicative_inverse,
 )
-from abstract_algebra.compound_structures.vector import identify_first_nonzero_entry
-from abstract_algebra.compound_structures.matrix import Matrix, get_identity_matrix
+from abstract_algebra.compound_structures.vector import Vector
+from abstract_algebra.compound_structures.matrix import Matrix
+from abstract_algebra.linear_algebra import vector_operations
+from abstract_algebra.linear_algebra import matrix_operations
 
 F = TypeVar("F", bound=FieldProtocol)
 
 
 @dataclass(init=True)
 class GaussJordan(Generic[F]):
-    matrix: Matrix[F]
+    base_matrix: Matrix[F]
 
     @property
     def reduced_row_echelon_form(self) -> Matrix[F]:
@@ -28,9 +30,9 @@ class GaussJordan(Generic[F]):
 
     @functools.cached_property
     def determinant(self) -> F:
-        if not self.row_echelon_form.is_square():
+        if not matrix_operations.is_square(self.row_echelon_form):
             return self._zero
-        determinant = self.row_echelon_form.diagonal_product()
+        determinant = matrix_operations.diagonal_product(self.row_echelon_form)
         if self._row_echelon_transformation_parity:
             return additive_inverse(determinant)
         else:
@@ -46,11 +48,11 @@ class GaussJordan(Generic[F]):
 
     @functools.cached_property
     def _zero(self) -> F:
-        return additive_identity(self.matrix[0][0])
+        return additive_identity(self.base_matrix[0][0])
 
     @functools.cached_property
     def _one(self) -> F:
-        return multiplicative_identity(self.matrix[0][0])
+        return multiplicative_identity(self.base_matrix[0][0])
 
     @property
     def _row_echelon_transformation_matrix(self) -> Matrix[F]:
@@ -79,31 +81,37 @@ class GaussJordan(Generic[F]):
         :return: R, E, parity (see above for definition of these values)
         """
 
-        matrix = self.matrix
+        result_matrix = self.base_matrix
 
-        row_operation_dimension = matrix.shape[0]
-        row_operations = get_identity_matrix(row_operation_dimension, self._one)
+        row_operation_dimension = result_matrix.shape[0]
+        identity_matrix = matrix_operations.identity_matrix(
+            dimensions=row_operation_dimension, example_field_element=self._one
+        )
+        row_operations = identity_matrix
 
         swap_count = 0
         pivot_row: int = 0
-        for pivot_column in range(0, matrix.shape[0] - 1):
-            column = matrix.transpose()[pivot_column]
-            swap_row = identify_first_nonzero_entry(column, starting_index=pivot_row)
+        for pivot_column in range(0, result_matrix.shape[0] - 1):
+            column = result_matrix.transpose()[pivot_column]
+            swap_row = vector_operations.identify_first_nonzero_entry(
+                column, starting_index=pivot_row
+            )
 
             if swap_row == -1:
                 continue
 
             if swap_row != pivot_row:
                 swap_count += 1
-                row_swap_matrix = get_identity_matrix(matrix.shape[0], self._one)
-                temp_row = row_swap_matrix[swap_row]
-                row_swap_matrix[swap_row] = row_swap_matrix[pivot_row]
-                row_swap_matrix[pivot_row] = temp_row
-                matrix = row_swap_matrix @ matrix
+                row_swap_list: List[Vector[F]] = list(identity_matrix.rows)
+                temp_row: Vector[F] = row_swap_list[swap_row]
+                row_swap_list[swap_row] = row_swap_list[pivot_row]
+                row_swap_list[pivot_row] = temp_row
+                row_swap_matrix: Matrix[F] = Matrix.new_matrix(row_swap_list)
+                result_matrix = row_swap_matrix @ result_matrix
                 row_operations = row_swap_matrix @ row_operations
 
-            pivot_value = matrix[pivot_row][pivot_column]
-            pivot_matrix = Matrix(
+            pivot_value = result_matrix[pivot_row][pivot_column]
+            pivot_matrix: Matrix[F] = Matrix.new_matrix(
                 [
                     [
                         (
@@ -112,7 +120,7 @@ class GaussJordan(Generic[F]):
                             else (
                                 self._zero
                                 if (j != pivot_column or i < pivot_row)
-                                else (self._zero - (matrix[i][j] / pivot_value))
+                                else (self._zero - (result_matrix[i][j] / pivot_value))
                             )
                         )
                         for j in range(row_operation_dimension)
@@ -122,10 +130,10 @@ class GaussJordan(Generic[F]):
             )
 
             row_operations = pivot_matrix @ row_operations
-            matrix = pivot_matrix @ matrix
+            result_matrix = pivot_matrix @ result_matrix
             pivot_row += 1
 
-        return matrix, row_operations, (swap_count % 2) != 0
+        return result_matrix, row_operations, (swap_count % 2) != 0
 
     @functools.cached_property
     def _pseudo_diagonal_form_and_transformation_matrix(
@@ -149,19 +157,19 @@ class GaussJordan(Generic[F]):
         :return: D, E (as defined above)
         """
 
-        matrix = self.row_echelon_form
+        result_matrix = self.row_echelon_form
         row_operations = self._row_echelon_transformation_matrix
 
-        row_operation_dimension = matrix.shape[0]
-        for pivot_column in range(matrix.shape[1] - 1, -1, -1):
-            column = matrix.transpose()[pivot_column]
-            pivot_row = identify_first_nonzero_entry(
+        row_operation_dimension = result_matrix.shape[0]
+        for pivot_column in range(result_matrix.shape[1] - 1, -1, -1):
+            column = result_matrix.transpose()[pivot_column]
+            pivot_row = vector_operations.identify_first_nonzero_entry(
                 column, starting_index=row_operation_dimension - 1, reverse=True
             )
             if pivot_row == -1:
                 continue
-            pivot_value = matrix[pivot_row][pivot_column]
-            pivot_matrix = Matrix(
+            pivot_value = result_matrix[pivot_row][pivot_column]
+            pivot_matrix: Matrix[F] = Matrix.new_matrix(
                 [
                     [
                         (
@@ -171,7 +179,8 @@ class GaussJordan(Generic[F]):
                                 self._zero
                                 if (j != pivot_row or i > pivot_row)
                                 else (
-                                    self._zero - (matrix[i][pivot_column] / pivot_value)
+                                    self._zero
+                                    - (result_matrix[i][pivot_column] / pivot_value)
                                 )
                             )
                         )
@@ -181,9 +190,9 @@ class GaussJordan(Generic[F]):
                 ]
             )
             row_operations = pivot_matrix @ row_operations
-            matrix = pivot_matrix @ matrix
+            result_matrix = pivot_matrix @ result_matrix
 
-        return matrix, row_operations
+        return result_matrix, row_operations
 
     @functools.cached_property
     def _reduced_row_echelon_form_and_transformation_matrix(
@@ -205,14 +214,15 @@ class GaussJordan(Generic[F]):
 
         :return: R, E (see above for the definition of these values)
         """
-        matrix = self.pseudo_diagonal
+        starting_matrix = self.pseudo_diagonal
         row_operations = self._pseudo_diagonal_form_and_transformation_matrix[1]
 
         pivot_indexes = [
-            identify_first_nonzero_entry(matrix[i]) for i in range(matrix.shape[0])
+            vector_operations.identify_first_nonzero_entry(starting_matrix[i])
+            for i in range(starting_matrix.shape[0])
         ]
 
-        scaling_matrix = Matrix(
+        scaling_matrix: Matrix[F] = Matrix.new_matrix(
             [
                 [
                     (
@@ -221,13 +231,15 @@ class GaussJordan(Generic[F]):
                         else (
                             self._one
                             if pivot_indexes[i] == -1
-                            else multiplicative_inverse(matrix[i][pivot_indexes[i]])
+                            else multiplicative_inverse(
+                                starting_matrix[i][pivot_indexes[i]]
+                            )
                         )
                     )
-                    for j in range(matrix.shape[0])
+                    for j in range(starting_matrix.shape[0])
                 ]
-                for i in range(matrix.shape[0])
+                for i in range(starting_matrix.shape[0])
             ]
         )
 
-        return scaling_matrix @ matrix, scaling_matrix @ row_operations
+        return scaling_matrix @ starting_matrix, scaling_matrix @ row_operations
