@@ -16,7 +16,7 @@ from abstract_algebra.linear_algebra import matrix_operations
 F = TypeVar("F", bound=FieldProtocol)
 
 
-@dataclass(init=True)
+@dataclass(init=True, frozen=True)
 class GaussJordan(Generic[F]):
     base_matrix: Matrix[F]
 

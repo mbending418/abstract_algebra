@@ -11,7 +11,7 @@ F = TypeVar("F", bound=FieldProtocol)
 def dot_product(v: Vector[F], w: Vector[F]) -> F:
     return functools.reduce(
         lambda a, b: a + b,
-        [xi + yi for (xi, yi) in zip(v.entries, w.entries)],
+        [xi * yi for (xi, yi) in zip(v.entries, w.entries)],
         additive_identity(v.entries[0]),
     )
 
