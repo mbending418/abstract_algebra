@@ -22,6 +22,14 @@ class MatrixSubspaces(Generic[F]):
         return GaussJordan(self.matrix).reduced_row_echelon_form
 
     @functools.cached_property
+    def rank(self) -> int:
+        return len(self.column_space)
+
+    @functools.cached_property
+    def nullity(self) -> int:
+        return len(self.null_space)
+
+    @functools.cached_property
     def column_space(self) -> List[Vector[F]]:
         row_count = self.matrix.shape[0]
         reduced_matrix = self.reduced_row_echelon_form
