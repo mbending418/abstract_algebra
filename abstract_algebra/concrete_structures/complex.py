@@ -91,6 +91,14 @@ class GaussianInteger(EuclideanRingProtocol):
     def norm2(self) -> int:
         return self.real**2 + self.imaginary**2
 
+    def __str__(self):
+        if self.imaginary == 0:
+            return f"{self.real}"
+        elif self.real == 0:
+            return f"i*{self.imaginary}"
+        else:
+            return f"{self.real}+i*{self.imaginary}"
+
     def __eq__(self, other) -> bool:
         if isinstance(other, GaussianInteger):
             return (self.real == other.real) and (self.imaginary == other.imaginary)

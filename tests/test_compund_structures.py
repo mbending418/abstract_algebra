@@ -9,7 +9,7 @@ def test_vector_length(parameter_vector):
     ), f"Length of Vector doesn't match the length of it's entries: {parameter_vector}"
 
 
-def test_matrix_length(parameter_matrix):
+def test_matrix_size(parameter_matrix):
     assert parameter_matrix.shape[0] == len(
         parameter_matrix.rows
     ), f"First Dimension of Matrix doesn't match the number of Rows: {parameter_matrix}"

@@ -39,7 +39,7 @@ class Fraction(Generic[E]):
             )
 
     def __str__(self) -> str:
-        return f"{self.numerator}/{self.denominator}"
+        return f"({self.numerator})/({self.denominator})"
 
     def __repr__(self) -> str:
         return f"Fraction[{self.ring}]({self.numerator},{self.denominator})"
